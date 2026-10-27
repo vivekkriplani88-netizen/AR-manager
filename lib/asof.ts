@@ -27,6 +27,15 @@ export function parseAsOf(value: string | string[] | null | undefined, now: Date
   return v && isValidDate(v) ? v : todayInIndia(now);
 }
 
+/**
+ * The ?asof= to carry on links: the URL's own value when valid, else null. Not the default,
+ * so a page opened without one keeps following today.
+ */
+export function asOfParam(value: string | string[] | null | undefined): string | null {
+  const v = Array.isArray(value) ? value[0] : value;
+  return v && isValidDate(v) ? v : null;
+}
+
 /** For pages: the as-at date from the page's searchParams prop. */
 export async function readAsOf(searchParams: Promise<SearchParams>): Promise<string> {
   return parseAsOf((await searchParams).asof);

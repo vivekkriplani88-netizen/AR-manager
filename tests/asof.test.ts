@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { isValidDate, parseAsOf, readAsOf, todayInIndia, withAsOf } from '../lib/asof';
+import { asOfParam, isValidDate, parseAsOf, readAsOf, todayInIndia, withAsOf } from '../lib/asof';
+
+describe('asOfParam', () => {
+  it('keeps only a valid ?asof= for links, never the default', () => {
+    expect(asOfParam('2026-08-31')).toBe('2026-08-31');
+    expect(asOfParam(undefined)).toBeNull();
+    expect(asOfParam('2026-02-30')).toBeNull();
+    expect(asOfParam(['2026-08-31'])).toBe('2026-08-31');
+  });
+});
 
 describe('todayInIndia', () => {
   it('rolls over at midnight IST, which is 18:30 UTC the day before', () => {

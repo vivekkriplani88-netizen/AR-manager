@@ -1,5 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { formatBalance, formatDate, formatMoney } from '../lib/format';
+import { formatBalance, formatDate, formatMoney, formatPercent, toPlainRupees } from '../lib/format';
+
+describe('toPlainRupees', () => {
+  it('writes rupees without ₹ or commas, for forms and CSV', () => {
+    expect(toPlainRupees(7_080_000)).toBe('70800.00');
+    expect(toPlainRupees(5)).toBe('0.05');
+    expect(toPlainRupees(1_234_567_890)).toBe('12345678.90');
+    expect(toPlainRupees(-10_000_000)).toBe('-100000.00');
+  });
+});
+
+describe('formatPercent', () => {
+  it('shows one decimal, or a dash when there is nothing to compare against', () => {
+    expect(formatPercent(111.65)).toBe('111.7%');
+    expect(formatPercent(0)).toBe('0.0%');
+    expect(formatPercent(null)).toBe('—');
+  });
+});
 
 describe('formatMoney (R18)', () => {
   it('uses the rupee sign, Indian digit grouping and two decimals', () => {

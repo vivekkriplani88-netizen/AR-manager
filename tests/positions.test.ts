@@ -98,6 +98,14 @@ describe('customerPositions (R13)', () => {
     expect(p.overdue).toBe(11_800_000); // BWA/26-27/0017, due 14-Aug; 0022 is not yet due
   });
 
+  it('gives the share of the credit limit used, or null without a limit', () => {
+    expect(customerPosition('C003', '2026-08-31').limitUsedPct).toBeCloseTo(111.65, 10); // 4,46,600 of 4,00,000
+    expect(customerPosition('C005', '2026-07-12').limitUsedPct).toBeCloseTo(-40, 10); // a credit balance
+    const d = loadSample();
+    d.customers.find((c) => c.code === 'C001')!.creditLimit = 0;
+    expect(customerPositions(d, '2026-08-31').find((p) => p.customer.code === 'C001')!.limitUsedPct).toBeNull();
+  });
+
   it('includes inactive customers', () => {
     expect(customerPosition('C008', '2026-08-31')).toMatchObject({ netBalance: 0 });
   });

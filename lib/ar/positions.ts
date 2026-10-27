@@ -30,6 +30,7 @@ export interface CustomerPosition {
   netBalance: Paise;
   overdue: Paise;
   overLimit: boolean;
+  limitUsedPct: number | null; // net balance as a percentage of the credit limit; null when the limit is 0
 }
 
 export interface BalanceDifference {
@@ -124,6 +125,7 @@ export function customerPositions(data: ArData, asOf: string): CustomerPosition[
       netBalance,
       overdue: outstanding - buckets['Not due'],
       overLimit: netBalance > customer.creditLimit,
+      limitUsedPct: customer.creditLimit > 0 ? (netBalance / customer.creditLimit) * 100 : null,
     };
   });
 }

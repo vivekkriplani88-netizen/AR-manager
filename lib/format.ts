@@ -14,6 +14,19 @@ export function formatMoney(amount: Paise): string {
   return `${amount < 0 ? '-' : ''}₹${indianGrouping.format(rupees)}.${String(paise).padStart(2, '0')}`;
 }
 
+/** Plain rupees for form fields, saving and CSV: 7080000 → '70800.00'. No ₹, no commas. */
+export function toPlainRupees(amount: Paise): string {
+  if (!Number.isInteger(amount)) throw new Error(`Amount must be whole paise, got ${amount}.`);
+  const abs = Math.abs(amount);
+  const paise = abs % 100;
+  return `${amount < 0 ? '-' : ''}${(abs - paise) / 100}.${String(paise).padStart(2, '0')}`;
+}
+
+/** 44.65 → '44.7%'; null (nothing to compare against) → '—'. */
+export function formatPercent(value: number | null): string {
+  return value === null ? '—' : `${value.toFixed(1)}%`;
+}
+
 /** A balance: positive is owed to us (Dr), negative is a credit balance (Cr). Zero has no suffix. */
 export function formatBalance(amount: Paise): string {
   if (amount === 0) return formatMoney(0);
