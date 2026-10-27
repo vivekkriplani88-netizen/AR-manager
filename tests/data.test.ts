@@ -1,11 +1,6 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { paise, toArData, type DbTables } from '../lib/ar/convert';
-
-const raw = readFileSync(new URL('./fixtures/sample.json', import.meta.url), 'utf8');
-const data = toArData(JSON.parse(raw) as DbTables);
-
-const invoice = (no: string) => data.invoices.find((i) => i.invoiceNo === no)!;
+import { paise } from '../lib/ar/convert';
+import { invoice, raw, sample as data } from './fixture';
 
 describe('sample fixture', () => {
   it('has every row of the sample data', () => {
