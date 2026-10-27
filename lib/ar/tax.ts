@@ -1,7 +1,6 @@
+import { SELLER } from '../seller';
 import { addDays } from './dates';
 import type { Invoice, Paise } from './types';
-
-export const SELLER_STATE = 'Maharashtra';
 
 export interface GstSplit { cgst: Paise; sgst: Paise; igst: Paise }
 
@@ -16,7 +15,7 @@ function divideHalfUp(numerator: number, denominator: number): number {
 }
 
 export function isIntraState(state: string): boolean {
-  return state.trim().toLowerCase() === SELLER_STATE.toLowerCase();
+  return state.trim().toLowerCase() === SELLER.state.toLowerCase();
 }
 
 function split(intraState: boolean, taxable: Paise, ratePct: number): GstSplit {

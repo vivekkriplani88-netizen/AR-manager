@@ -1,55 +1,49 @@
 import { Suspense } from 'react';
-import { connection } from 'next/server';
-import { db } from '@/lib/db';
+import { customerPositions } from '@/lib/ar';
+import { loadArData } from '@/lib/ar/load';
+import { readAsOf } from '@/lib/asof';
+import { formatBalance, formatDate, formatMoney } from '@/lib/format';
 
-// Temporary connection check (Part 5 Step 2). Replaced by "Overdue at a glance" later.
-export default function Home() {
+// Temporary: checks the as-at date end to end. Replaced by "Overdue at a glance" in Step 8.
+export default function Home({ searchParams }: PageProps<'/'>) {
   return (
-    <main className="mx-auto max-w-3xl p-8">
-      <h1 className="mb-4 text-2xl font-semibold">AR Manager: connection check</h1>
-      <Suspense fallback={<p>Loading customers…</p>}>
-        <CustomerList />
-      </Suspense>
-    </main>
+    <Suspense fallback={<p>Loading…</p>}>
+      <Balances searchParams={searchParams} />
+    </Suspense>
   );
 }
 
-async function CustomerList() {
-  await connection();
-  const { data, error } = await db
-    .from('customers')
-    .select('id, code, name, city, state')
-    .order('code');
+async function Balances({ searchParams }: Pick<PageProps<'/'>, 'searchParams'>) {
+  const asOf = await readAsOf(searchParams);
+  const rows = customerPositions(await loadArData(), asOf);
 
   return (
     <>
-      {error ? (
-        <p className="text-red-600">Could not load customers: {error.message}</p>
-      ) : (
-        <>
-          <p className="mb-4">{data.length} customers loaded from the workspace.</p>
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="py-2">Code</th>
-                <th className="py-2">Name</th>
-                <th className="py-2">City</th>
-                <th className="py-2">State</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((c) => (
-                <tr key={c.id} className="border-b">
-                  <td className="py-2">{c.code}</td>
-                  <td className="py-2">{c.name}</td>
-                  <td className="py-2">{c.city}</td>
-                  <td className="py-2">{c.state}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      )}
+      <h1 className="mb-4 text-2xl font-semibold">Balances as at {formatDate(asOf)}</h1>
+      <table className="tabular w-full bg-white text-sm">
+        <thead>
+          <tr className="border-b text-left">
+            <th className="p-2">Code</th>
+            <th className="p-2">Customer</th>
+            <th className="p-2 text-right">Outstanding</th>
+            <th className="p-2 text-right">Unapplied</th>
+            <th className="p-2 text-right">Net balance</th>
+            <th className="p-2 text-right">Overdue</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.customer.id} className="border-b">
+              <td className="p-2">{r.customer.code}</td>
+              <td className="p-2">{r.customer.name}</td>
+              <td className="p-2 text-right">{formatMoney(r.outstanding)}</td>
+              <td className="p-2 text-right">{formatMoney(r.unapplied)}</td>
+              <td className="p-2 text-right">{formatBalance(r.netBalance)}</td>
+              <td className={`p-2 text-right ${r.overdue > 0 ? 'text-red-700' : ''}`}>{formatMoney(r.overdue)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </>
   );
 }
