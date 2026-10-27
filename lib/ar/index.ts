@@ -7,3 +7,5 @@ export * from './positions';
 export * from './statement';
 export * from './notes';
 export * from './dso';
+export * from './invoice-rows';
+export * from './preview';

@@ -1,6 +1,15 @@
 // zod building blocks for form fields. Forms send text, so every field starts as a string.
 import { z } from 'zod';
 import type { Paise } from '../ar/types';
+import { isValidDate } from '../asof';
+
+/** A percentage as typed ('18', '12.5'), from 0 to 100 with at most two decimals. Null if not one. */
+export function parsePercent(text: string): number | null {
+  const t = text.trim();
+  if (!/^\d{1,3}(\.\d{1,2})?$/.test(t)) return null;
+  const n = Number(t);
+  return n <= 100 ? n : null;
+}
 
 /** Rupees as typed ('1,25,000.50', '₹500') to whole paise, without floating point. Null if not an amount. */
 export function parseRupees(text: string): Paise | null {
@@ -38,6 +47,20 @@ export const rupees = (label: string) =>
     }
     return amount;
   });
+
+export const positiveRupees = (label: string) =>
+  rupees(label).refine((amount) => amount > 0, { error: `The ${label} must be more than zero.` });
+
+export const date = (label: string) =>
+  z
+    .string()
+    .trim()
+    .min(1, { error: `Enter the ${label}.` })
+    .refine(isValidDate, { error: `Enter the ${label} as a real date.` });
+
+/** The id of a record chosen from a list. */
+export const recordId = (message: string) =>
+  z.string().trim().regex(/^\d+$/, { error: message }).transform(Number);
 
 export const wholeNumber = (label: string, max: number) =>
   z
