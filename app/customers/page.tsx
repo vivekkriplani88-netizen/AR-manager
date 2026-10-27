@@ -4,7 +4,8 @@ import { ActiveStatus } from '@/components/badges';
 import { SortHeader } from '@/components/sort-header';
 import { customerPositions } from '@/lib/ar';
 import { loadArData } from '@/lib/ar/load';
-import { asOfParam, parseAsOf, withAsOf } from '@/lib/asof';
+import { asOfParam, withAsOf } from '@/lib/asof';
+import { requestAsOf } from '@/lib/request-date';
 import { customerList, parseCustomerListQuery } from '@/lib/customer-list';
 import { formatBalance, formatDate, formatMoney, formatPercent } from '@/lib/format';
 
@@ -18,7 +19,7 @@ export default function CustomersPage({ searchParams }: PageProps<'/customers'>)
 
 async function CustomerList({ searchParams }: Pick<PageProps<'/customers'>, 'searchParams'>) {
   const sp = await searchParams;
-  const asOf = parseAsOf(sp.asof);
+  const asOf = await requestAsOf(sp.asof);
   const keepAsOf = asOfParam(sp.asof);
   const query = parseCustomerListQuery(sp);
   const all = customerPositions(await loadArData(), asOf);

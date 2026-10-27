@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { asOfParam, isValidDate, parseAsOf, readAsOf, todayInIndia, withAsOf } from '../lib/asof';
+import { asOfParam, isValidDate, parseAsOf, todayInIndia, withAsOf } from '../lib/asof';
 
 describe('asOfParam', () => {
   it('keeps only a valid ?asof= for links, never the default', () => {
@@ -58,12 +58,6 @@ describe('parseAsOf', () => {
 
   it('takes the first value when ?asof= is repeated', () => {
     expect(parseAsOf(['2026-08-31', '2026-09-06'], now)).toBe('2026-08-31');
-  });
-});
-
-describe('readAsOf', () => {
-  it('reads asof from a page’s searchParams', async () => {
-    expect(await readAsOf(Promise.resolve({ asof: '2026-08-31', status: 'Overdue' }))).toBe('2026-08-31');
   });
 });
 

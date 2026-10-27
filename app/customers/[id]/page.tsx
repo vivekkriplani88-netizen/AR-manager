@@ -8,7 +8,8 @@ import {
   customerPositions, followUpsDue, invoicePositions, promiseStatuses, receiptPositions, type Invoice, type InvoicePosition,
 } from '@/lib/ar';
 import { loadArData } from '@/lib/ar/load';
-import { asOfParam, parseAsOf, withAsOf } from '@/lib/asof';
+import { asOfParam, withAsOf } from '@/lib/asof';
+import { requestAsOf } from '@/lib/request-date';
 import { formatBalance, formatDate, formatMoney, formatPercent } from '@/lib/format';
 
 export default function CustomerPage(props: PageProps<'/customers/[id]'>) {
@@ -28,7 +29,7 @@ const tdr = 'p-2 text-right whitespace-nowrap';
 async function Customer({ params, searchParams }: PageProps<'/customers/[id]'>) {
   const id = Number((await params).id);
   const sp = await searchParams;
-  const asOf = parseAsOf(sp.asof);
+  const asOf = await requestAsOf(sp.asof);
   const keep = asOfParam(sp.asof);
   const link = (href: string) => withAsOf(href, keep);
 

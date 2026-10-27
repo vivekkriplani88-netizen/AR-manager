@@ -3,8 +3,6 @@
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-type SearchParams = Record<string, string | string[] | undefined>;
-
 /**
  * Today's date in Asia/Kolkata as 'YYYY-MM-DD'. Vercel runs in UTC, where "today" is still
  * yesterday until 05:30 IST, so the server's own date is never used (section 4.10).
@@ -34,11 +32,6 @@ export function parseAsOf(value: string | string[] | null | undefined, now: Date
 export function asOfParam(value: string | string[] | null | undefined): string | null {
   const v = Array.isArray(value) ? value[0] : value;
   return v && isValidDate(v) ? v : null;
-}
-
-/** For pages: the as-at date from the page's searchParams prop. */
-export async function readAsOf(searchParams: Promise<SearchParams>): Promise<string> {
-  return parseAsOf((await searchParams).asof);
 }
 
 /** Adds ?asof= to a link, keeping its other parameters and #fragment. Unchanged when asOf is null. */

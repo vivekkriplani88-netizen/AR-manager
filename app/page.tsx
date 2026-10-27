@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { customerPositions } from '@/lib/ar';
 import { loadArData } from '@/lib/ar/load';
-import { readAsOf } from '@/lib/asof';
+import { requestAsOf } from '@/lib/request-date';
 import { formatBalance, formatDate, formatMoney } from '@/lib/format';
 
 // Temporary: checks the as-at date end to end. Replaced by "Overdue at a glance" in Step 8.
@@ -14,7 +14,7 @@ export default function Home({ searchParams }: PageProps<'/'>) {
 }
 
 async function Balances({ searchParams }: Pick<PageProps<'/'>, 'searchParams'>) {
-  const asOf = await readAsOf(searchParams);
+  const asOf = await requestAsOf((await searchParams).asof);
   const rows = customerPositions(await loadArData(), asOf);
 
   return (
