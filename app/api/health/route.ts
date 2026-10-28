@@ -20,14 +20,17 @@ export async function GET() {
   const workspace = process.env.AR_WORKSPACE_ID ?? '';
   const hide = (text: string) => [workspace, key].filter(Boolean).reduce((t, secret) => t.split(secret).join('[hidden]'), text);
 
-  let database: { ok: boolean; customers?: number | null; message?: string };
+  let database: { ok: boolean; status?: number; customers?: number | null; message?: string };
   try {
     const db = createClient(url, key, {
       auth: { persistSession: false },
       global: { headers: { 'x-workspace': workspace } },
     });
-    const { count, error } = await db.from('customers').select('id', { count: 'exact', head: true });
-    database = error ? { ok: false, message: hide(error.message || JSON.stringify(error)) } : { ok: true, customers: count };
+    // A normal GET (not HEAD), so an error comes back with the database's own explanation.
+    const { data, status, error } = await db.from('customers').select('id');
+    database = error
+      ? { ok: false, status, message: hide(error.message || JSON.stringify(error)) }
+      : { ok: true, status, customers: data.length };
   } catch (e) {
     database = { ok: false, message: hide(e instanceof Error ? e.message : String(e)) };
   }
