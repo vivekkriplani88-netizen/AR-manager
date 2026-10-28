@@ -123,7 +123,7 @@ async function StatementView({ searchParams }: Pick<PageProps<'/statement'>, 'se
             <h2 className="mb-2 text-sm font-semibold">Closing balance by ageing, as at {formatDate(s.to)}</h2>
             <table className="tabular w-full text-sm print:text-xs">
               <thead className="border-b border-zinc-300"><tr>
-                {BUCKETS.map((b) => <th key={b} className={thr}>{BUCKET_LABELS[b]}{b === 'Not due' || b === 'Over 180' ? '' : ' days'}</th>)}
+                {BUCKETS.map((b) => <th key={b} className={thr}>{BUCKET_LABELS[b]}{b === 'Not due' || b === 'Over 90' ? '' : ' days'}</th>)}
                 <th className={thr}>Unapplied credit</th><th className={thr}>Closing balance</th>
               </tr></thead>
               <tbody><tr>

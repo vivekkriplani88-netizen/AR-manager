@@ -2,7 +2,7 @@ import { BUCKETS, type Bucket, type Paise } from '@/lib/ar';
 import { formatMoney } from '@/lib/format';
 
 export const BUCKET_LABELS: Record<Bucket, string> = {
-  'Not due': 'Not due', '1-30': '1–30', '31-60': '31–60', '61-90': '61–90', '91-180': '91–180', 'Over 180': 'Over 180',
+  'Not due': 'Not due', '1-15': '1–15', '16-30': '16–30', '31-45': '31–45', '46-90': '46–90', 'Over 90': 'Over 90',
 };
 
 /** The one-line ageing breakdown: every bucket, overdue ones in red when they hold an amount. */

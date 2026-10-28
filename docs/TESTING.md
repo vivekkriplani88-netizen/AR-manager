@@ -25,7 +25,7 @@ Amounts below are as at the date given. Use the date picker in the header or add
 |---|---|---|
 | 1 | Invoice BWA/26-27/0001 | CGST ₹6,750.00 + SGST ₹6,750.00, total ₹88,500.00, due 05-May-2026 |
 | 2 | Invoice BWA/26-27/0002 | IGST ₹63,000.00, total ₹4,13,000.00 |
-| 3 | BWA/26-27/0003, as at 31-Aug-2026 | Outstanding ₹69,600.00, Overdue, Part-paid, 90 days late, 61–90 bucket |
+| 3 | BWA/26-27/0003, as at 31-Aug-2026 | Outstanding ₹69,600.00, Overdue, Part-paid, 90 days late, 46–90 bucket (61–90 in the brief, before the client's change to the ageing bands) |
 | 4 | BWA/26-27/0021 as at 31-Aug / 06-Sep / 15-Sep-2026 | Due ₹88,500.00 / Overdue 2 days, ₹88,500.00 / Paid |
 | 5 | Customer C005, as at 31-Aug-2026 | Outstanding ₹1,88,800.00, unapplied ₹1,00,000.00, net ₹88,800.00 Dr |
 | 6 | Customer C005, as at 12-Jul-2026 | Net ₹1,00,000.00 **Cr** |
@@ -40,8 +40,9 @@ Amounts below are as at the date given. Use the date picker in the header or add
 
 - [ ] Outstanding ₹21,18,100.00 · Unapplied ₹1,00,000.00 · Net receivable ₹20,18,100.00 Dr
 - [ ] Overdue ₹12,86,200.00 (60.7% of outstanding) · DSO 111 days · 11 overdue invoices
-- [ ] Ageing totals: Not due ₹8,31,900 · 1–30 ₹6,25,400 · 31–60 ₹2,27,200 · 61–90 ₹69,600 · 91–180 ₹1,87,000 · Over 180 ₹1,77,000
-- [ ] Click C003's 91–180 amount: the invoice list shows exactly BWA/25-26/0156 and BWA/26-27/0004.
+- [ ] Ageing columns are Not due, 1–15, 16–30, 31–45, 46–90 and Over 90.
+- [ ] Ageing totals: Not due ₹8,31,900 · 1–15 ₹5,07,400 · 16–30 ₹1,18,000 · 31–45 ₹1,29,800 · 46–90 ₹1,67,000 · Over 90 ₹3,64,000
+- [ ] Click C003's Over 90 amount: the invoice list shows exactly BWA/25-26/0141, BWA/25-26/0156 and BWA/26-27/0004.
 - [ ] Overdue invoices are red and start with BWA/25-26/0141 (193 days); BWA/26-27/0010 shows Disputed.
 - [ ] Needs attention: C003 over limit; C002's broken promise; ₹1,00,000.00 unapplied from RCT/26-27/0011; no follow-ups due.
 - [ ] Change the date to 10-Sep-2026: three follow-ups due (01, 05 and 10-Sep).
@@ -85,7 +86,7 @@ Amounts below are as at the date given. Use the date picker in the header or add
 
 ## 8. Statement, printing and exports
 
-- [ ] `/statement`, C002, 01-Apr to 31-Aug-2026: matches spot check 8; footer Not due ₹59,000.00, 31–60 ₹94,400.00, 61–90 ₹69,600.00.
+- [ ] `/statement`, C002, 01-Apr to 31-Aug-2026: matches spot check 8; footer Not due ₹59,000.00, 46–90 ₹1,64,000.00, every other band ₹0.00.
 - [ ] From after To: a plain-language message, no statement.
 - [ ] Print: one clean A4 page with Brightwater's name and address, the customer, the period, the table and the footer; no navigation or buttons.
 - [ ] Export CSV: `Statement_C002_2026-04-01_to_2026-08-31.csv` opens in Excel with ₹-free amounts (`70800.00`) and the address in one cell.

@@ -5,7 +5,7 @@ import { toPlainRupees } from './format';
 import { SELLER } from './seller';
 
 const BUCKET_HEADINGS: Record<Bucket, string> = {
-  'Not due': 'Not due', '1-30': '1-30 days', '31-60': '31-60 days', '61-90': '61-90 days', '91-180': '91-180 days', 'Over 180': 'Over 180 days',
+  'Not due': 'Not due', '1-15': '1-15 days', '16-30': '16-30 days', '31-45': '31-45 days', '46-90': '46-90 days', 'Over 90': 'Over 90 days',
 };
 
 const amount = (paise: number): string => toPlainRupees(paise);

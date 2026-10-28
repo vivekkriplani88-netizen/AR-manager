@@ -41,10 +41,10 @@ describe('statement CSV (R15): C002, 01-Apr to 31-Aug-2026 (spot check 8)', () =
   });
 
   it('ends with the closing balance by ageing (worked out by hand)', () => {
-    // 0018 not due (due 03-Sep); 0009 56 days late; 0003 90 days late.
+    // 0018 not due (due 03-Sep); 0009 (56 days) and 0003 (90 days) both 46–90.
     expect(rows.slice(-8)).toEqual([
-      ['Not due', '59000.00'], ['1-30 days', '0.00'], ['31-60 days', '94400.00'], ['61-90 days', '69600.00'],
-      ['91-180 days', '0.00'], ['Over 180 days', '0.00'], ['Less unapplied credit', '0.00'], ['Closing balance', '223000.00', 'Dr'],
+      ['Not due', '59000.00'], ['1-15 days', '0.00'], ['16-30 days', '0.00'], ['31-45 days', '0.00'],
+      ['46-90 days', '164000.00'], ['Over 90 days', '0.00'], ['Less unapplied credit', '0.00'], ['Closing balance', '223000.00', 'Dr'],
     ]);
   });
 
@@ -89,9 +89,9 @@ describe('ageing CSV', () => {
   const rows = ageingCsvRows(dashboard(data, '2026-08-31'), '2026-08-31');
 
   it('keeps unapplied credit in its own column and totals every column', () => {
-    expect(rows[2]).toEqual(['Customer code', 'Customer', 'Not due', '1-30 days', '31-60 days', '61-90 days', '91-180 days', 'Over 180 days', 'Outstanding', 'Unapplied credit', 'Net balance', 'Dr/Cr']);
-    expect(rows.find((r) => r[0] === 'C005')).toEqual(['C005', 'Sabarmati Retail Ventures Pvt. Ltd.', '70800.00', '118000.00', '0.00', '0.00', '0.00', '0.00', '188800.00', '100000.00', '88800.00', 'Dr']);
-    expect(rows.at(-1)).toEqual(['Total', null, '831900.00', '625400.00', '227200.00', '69600.00', '187000.00', '177000.00', '2118100.00', '100000.00', '2018100.00', 'Dr']);
+    expect(rows[2]).toEqual(['Customer code', 'Customer', 'Not due', '1-15 days', '16-30 days', '31-45 days', '46-90 days', 'Over 90 days', 'Outstanding', 'Unapplied credit', 'Net balance', 'Dr/Cr']);
+    expect(rows.find((r) => r[0] === 'C005')).toEqual(['C005', 'Sabarmati Retail Ventures Pvt. Ltd.', '70800.00', '0.00', '118000.00', '0.00', '0.00', '0.00', '188800.00', '100000.00', '88800.00', 'Dr']);
+    expect(rows.at(-1)).toEqual(['Total', null, '831900.00', '507400.00', '118000.00', '129800.00', '167000.00', '364000.00', '2118100.00', '100000.00', '2018100.00', 'Dr']);
   });
 });
 

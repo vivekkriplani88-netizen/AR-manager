@@ -1,8 +1,10 @@
 import { daysBetween } from './dates';
 import type { ArData, Customer, Invoice, Paise, Receipt } from './types';
 
-export type Bucket = 'Not due' | '1-30' | '31-60' | '61-90' | '91-180' | 'Over 180';
-export const BUCKETS: Bucket[] = ['Not due', '1-30', '31-60', '61-90', '91-180', 'Over 180'];
+// Ageing bands by days past due. The client's change request replaced R12's bands
+// (1–30, 31–60, 61–90, 91–180, Over 180) with these.
+export type Bucket = 'Not due' | '1-15' | '16-30' | '31-45' | '46-90' | 'Over 90';
+export const BUCKETS: Bucket[] = ['Not due', '1-15', '16-30', '31-45', '46-90', 'Over 90'];
 
 export interface InvoicePosition {
   invoice: Invoice;
@@ -42,15 +44,15 @@ export interface BalanceDifference {
 
 export function bucketFor(daysPastDue: number): Bucket {
   if (daysPastDue <= 0) return 'Not due';
-  if (daysPastDue <= 30) return '1-30';
-  if (daysPastDue <= 60) return '31-60';
-  if (daysPastDue <= 90) return '61-90';
-  if (daysPastDue <= 180) return '91-180';
-  return 'Over 180';
+  if (daysPastDue <= 15) return '1-15';
+  if (daysPastDue <= 30) return '16-30';
+  if (daysPastDue <= 45) return '31-45';
+  if (daysPastDue <= 90) return '46-90';
+  return 'Over 90';
 }
 
 export function emptyBuckets(): Record<Bucket, Paise> {
-  return { 'Not due': 0, '1-30': 0, '31-60': 0, '61-90': 0, '91-180': 0, 'Over 180': 0 };
+  return { 'Not due': 0, '1-15': 0, '16-30': 0, '31-45': 0, '46-90': 0, 'Over 90': 0 };
 }
 
 /** R11 + R12: the position of every live invoice at the end of asOf ('YYYY-MM-DD'). */

@@ -43,10 +43,13 @@ describe('invoiceList filters', () => {
   });
 
   it('filters by ageing bucket, for click-through from the dashboard', () => {
-    // C003 as at 31-Aug: 0141 Over 180; 0156 and 0004 in 91–180; 0013 in 31–60.
-    expect(numbers({ customer: customer('C003').id, bucket: '91-180' })).toEqual(['0156', '0004']);
+    // C003 as at 31-Aug: 0141, 0156 and 0004 Over 90; 0013 in 31–45.
+    expect(numbers({ customer: customer('C003').id, bucket: 'Over 90' })).toEqual(['0141', '0156', '0004']);
+    expect(numbers({ customer: customer('C003').id, bucket: '31-45' })).toEqual(['0013']);
     expect(numbers({ bucket: 'Not due' })).toEqual(['0018', '0019', '0021', '0022', '0023']);
-    expect(parseInvoiceListQuery({ bucket: '61-90' }).bucket).toBe('61-90');
+    expect(numbers({ bucket: '46-90' })).toEqual(['0003', '0007', '0009']);
+    expect(parseInvoiceListQuery({ bucket: '46-90' }).bucket).toBe('46-90');
+    expect(parseInvoiceListQuery({ bucket: '61-90' }).bucket).toBeNull(); // an old band from before the change
     expect(parseInvoiceListQuery({ bucket: '1-99' }).bucket).toBeNull();
   });
 

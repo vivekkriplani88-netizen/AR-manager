@@ -35,8 +35,19 @@ describe('dashboard as at 31-Aug-2026 (figures worked out by hand)', () => {
   it('ages by customer without netting unapplied credit against any bucket', () => {
     expect(d.ageing.map((p) => p.customer.code)).toEqual(['C001', 'C002', 'C003', 'C004', 'C005', 'C006', 'C007']); // C008 owes nothing
     const c005 = d.ageing.find((p) => p.customer.code === 'C005')!;
-    expect(c005.buckets).toMatchObject({ 'Not due': 7_080_000, '1-30': 11_800_000 });
+    expect(c005.buckets).toMatchObject({ 'Not due': 7_080_000, '16-30': 11_800_000 }); // 0017 is 17 days late
     expect(c005.unapplied).toBe(10_000_000);
+  });
+
+  it('totals each ageing band (worked out by hand)', () => {
+    expect(d.ageingTotals.buckets).toEqual({
+      'Not due': 83_190_000, // 0018, 0019, 0021, 0022, 0023
+      '1-15': 50_740_000, // 0015 and 0020, 15 days
+      '16-30': 11_800_000, // 0017, 17 days
+      '31-45': 12_980_000, // 0013 (34) and 0010 (31)
+      '46-90': 16_700_000, // 0003 (90), 0009 (56) and 0007 (51)
+      'Over 90': 36_400_000, // 0141 (193), 0156 (157) and 0004 (98)
+    });
   });
 });
 

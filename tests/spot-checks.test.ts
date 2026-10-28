@@ -25,9 +25,10 @@ describe('Part 1 spot checks', () => {
     expect(documentTotal(35_000_000, gst)).toBe(41_300_000);
   });
 
-  it('3. BWA/26-27/0003 as at 31-Aug-2026: 69,600.00 outstanding, Overdue · part-paid, 90 days, 61–90', () => {
+  // The brief expects bucket 61–90; under the client's ageing bands, 90 days late is 46–90.
+  it('3. BWA/26-27/0003 as at 31-Aug-2026: 69,600.00 outstanding, Overdue · part-paid, 90 days, 46–90', () => {
     expect(position('BWA/26-27/0003', '2026-08-31')).toMatchObject({
-      outstanding: 6_960_000, status: 'Overdue', isPartPaid: true, daysPastDue: 90, bucket: '61-90',
+      outstanding: 6_960_000, status: 'Overdue', isPartPaid: true, daysPastDue: 90, bucket: '46-90',
     });
   });
 

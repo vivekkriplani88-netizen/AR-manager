@@ -92,7 +92,7 @@ async function InvoiceList({ searchParams }: Pick<PageProps<'/invoices'>, 'searc
         <label className="flex flex-col gap-1"><span className="text-zinc-600">Ageing</span>
           <select name="bucket" defaultValue={query.bucket ?? ''} className={control}>
             <option value="">All buckets</option>
-            {BUCKETS.map((b) => <option key={b} value={b}>{b === 'Not due' || b === 'Over 180' ? b : `${BUCKET_LABELS[b]} days`}</option>)}
+            {BUCKETS.map((b) => <option key={b} value={b}>{b === 'Not due' || b === 'Over 90' ? b : `${BUCKET_LABELS[b]} days`}</option>)}
           </select>
         </label>
         <label className="flex flex-col gap-1"><span className="text-zinc-600">Invoice date from</span>

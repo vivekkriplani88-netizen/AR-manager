@@ -13,15 +13,16 @@ describe('bucketFor (R12)', () => {
   it('puts each boundary in the right bucket', () => {
     expect(bucketFor(-10)).toBe('Not due');
     expect(bucketFor(0)).toBe('Not due');
-    expect(bucketFor(1)).toBe('1-30');
-    expect(bucketFor(30)).toBe('1-30');
-    expect(bucketFor(31)).toBe('31-60');
-    expect(bucketFor(60)).toBe('31-60');
-    expect(bucketFor(61)).toBe('61-90');
-    expect(bucketFor(90)).toBe('61-90');
-    expect(bucketFor(91)).toBe('91-180');
-    expect(bucketFor(180)).toBe('91-180');
-    expect(bucketFor(181)).toBe('Over 180');
+    expect(bucketFor(1)).toBe('1-15');
+    expect(bucketFor(15)).toBe('1-15');
+    expect(bucketFor(16)).toBe('16-30');
+    expect(bucketFor(30)).toBe('16-30');
+    expect(bucketFor(31)).toBe('31-45');
+    expect(bucketFor(45)).toBe('31-45');
+    expect(bucketFor(46)).toBe('46-90');
+    expect(bucketFor(90)).toBe('46-90');
+    expect(bucketFor(91)).toBe('Over 90');
+    expect(bucketFor(400)).toBe('Over 90');
   });
 });
 
@@ -34,14 +35,14 @@ describe('invoicePositions (R10, R11)', () => {
 
   it('is still Due on its due date and Overdue the day after', () => {
     expect(position('BWA/26-27/0021', '2026-09-04')).toMatchObject({ status: 'Due', daysPastDue: 0, bucket: 'Not due' });
-    expect(position('BWA/26-27/0021', '2026-09-05')).toMatchObject({ status: 'Overdue', daysPastDue: 1, bucket: '1-30' });
+    expect(position('BWA/26-27/0021', '2026-09-05')).toMatchObject({ status: 'Overdue', daysPastDue: 1, bucket: '1-15' });
   });
 
   it('counts allocations by allocation date, not receipt date', () => {
     // RCT/26-27/0011 (₹1,00,000 advance) is dated 10-Jul but allocated to BWA/26-27/0017 only on 05-Sep.
     expect(position('BWA/26-27/0017', '2026-08-31')).toMatchObject({ received: 0, isPartPaid: false, outstanding: 11_800_000 });
     expect(position('BWA/26-27/0017', '2026-09-05')).toMatchObject({
-      received: 10_000_000, outstanding: 1_800_000, status: 'Overdue', isPartPaid: true, daysPastDue: 22, bucket: '1-30',
+      received: 10_000_000, outstanding: 1_800_000, status: 'Overdue', isPartPaid: true, daysPastDue: 22, bucket: '16-30',
     });
   });
 
@@ -83,7 +84,8 @@ describe('receiptPositions (R5)', () => {
 describe('customerPositions (R13)', () => {
   it('ages C003 as at 31-Aug-2026 and flags it over its limit (worked out by hand)', () => {
     expect(customerPosition('C003', '2026-08-31')).toMatchObject({
-      buckets: { 'Not due': 0, '1-30': 0, '31-60': 8_260_000, '61-90': 0, '91-180': 18_700_000, 'Over 180': 17_700_000 },
+      // 0141 (193 days), 0156 (157) and 0004 (98) are Over 90; 0013 (34) is 31–45.
+      buckets: { 'Not due': 0, '1-15': 0, '16-30': 0, '31-45': 8_260_000, '46-90': 0, 'Over 90': 36_400_000 },
       outstanding: 44_660_000,
       unapplied: 0,
       netBalance: 44_660_000,

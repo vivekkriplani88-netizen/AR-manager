@@ -163,6 +163,28 @@ page, dashboard and statement to confirm they agree.
 
 ---
 
+## Change requests
+
+**Ageing bands (client change request).** The client replaced R12's ageing bands across the whole
+application. The bands are now:
+
+| Band | Days past due |
+|---|---|
+| Not due | 0 or fewer |
+| 1–15 | 1 to 15 |
+| 16–30 | 16 to 30 |
+| 31–45 | 31 to 45 |
+| 46–90 | 46 to 90 |
+| Over 90 | 91 or more |
+
+They are defined once, in `lib/ar/positions.ts` (`Bucket`, `BUCKETS`, `bucketFor`), and every screen
+and export follows them: the dashboard's ageing table and totals, the customer page's one-line
+ageing, the invoice list's ageing filter, the statement's ageing footer, and the ageing and statement
+CSVs. Only the bands changed: outstanding, overdue, net balances and DSO are unaffected. **Spot check 3
+now expects bucket 46–90** for BWA/26-27/0003 (90 days late as at 31-Aug-2026), where the brief says
+61–90. As at 31-Aug-2026 the totals are Not due ₹8,31,900 · 1–15 ₹5,07,400 · 16–30 ₹1,18,000 ·
+31–45 ₹1,29,800 · 46–90 ₹1,67,000 · Over 90 ₹3,64,000, still ₹21,18,100 in all.
+
 ## Assumptions
 
 Where the brief left a choice open, I made these decisions.
