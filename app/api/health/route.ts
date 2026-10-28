@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 
 /**
@@ -35,9 +36,23 @@ export async function GET() {
     database = { ok: false, message: hide(e instanceof Error ? e.message : String(e)) };
   }
 
+  // Which key this is, without showing it: the project and role written inside the token, and a
+  // short fingerprint to compare with the key in .env.local.
+  let keyInfo: { project?: string; role?: string; fingerprint: string } | null = null;
+  if (key) {
+    const fingerprint = createHash('sha256').update(key).digest('hex').slice(0, 12);
+    try {
+      const payload = JSON.parse(Buffer.from(key.split('.')[1], 'base64url').toString('utf8'));
+      keyInfo = { project: payload.ref, role: payload.role, fingerprint };
+    } catch {
+      keyInfo = { fingerprint };
+    }
+  }
+
   return Response.json(
     {
       variables,
+      anonKey: keyInfo,
       supabaseHost: (() => { try { return new URL(url.trim()).host; } catch { return null; } })(),
       workspaceIdShape: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(workspace),
       database,
