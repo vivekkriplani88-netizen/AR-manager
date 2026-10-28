@@ -9,7 +9,7 @@ import { customer, invoice, loadSample, sample as data } from './fixture';
 
 const rows = invoiceRows(data, '2026-08-31');
 const list = (query: Partial<InvoiceListQuery>) =>
-  invoiceList(rows, { q: '', customer: null, status: 'all', disputed: 'all', from: null, to: null, sort: 'invoiceDate', dir: 'asc', ...query });
+  invoiceList(rows, { q: '', customer: null, status: 'all', disputed: 'all', bucket: null, from: null, to: null, sort: 'invoiceDate', dir: 'asc', ...query });
 const numbers = (query: Partial<InvoiceListQuery>) => list(query).map((r) => r.invoice.invoiceNo.slice(-4));
 
 describe('invoiceRows (R8, R10, R11)', () => {
@@ -40,6 +40,14 @@ describe('invoiceList filters', () => {
     expect(numbers({ customer: customer('C005').id })).toEqual(['0017', '0022']);
     expect(numbers({ disputed: 'yes' })).toEqual(['0010']);
     expect(numbers({ from: '2026-08-01', to: '2026-08-31' })).toEqual(['0020', '0021', '0022', '0023']);
+  });
+
+  it('filters by ageing bucket, for click-through from the dashboard', () => {
+    // C003 as at 31-Aug: 0141 Over 180; 0156 and 0004 in 91–180; 0013 in 31–60.
+    expect(numbers({ customer: customer('C003').id, bucket: '91-180' })).toEqual(['0156', '0004']);
+    expect(numbers({ bucket: 'Not due' })).toEqual(['0018', '0019', '0021', '0022', '0023']);
+    expect(parseInvoiceListQuery({ bucket: '61-90' }).bucket).toBe('61-90');
+    expect(parseInvoiceListQuery({ bucket: '1-99' }).bucket).toBeNull();
   });
 
   it('searches by number', () => {

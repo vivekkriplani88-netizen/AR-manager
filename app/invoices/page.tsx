@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { InvoiceStatus } from '@/components/badges';
 import { SortHeader } from '@/components/sort-header';
-import { invoiceRows, invoiceTotals } from '@/lib/ar';
+import { BUCKET_LABELS } from '@/components/ageing-line';
+import { BUCKETS, invoiceRows, invoiceTotals } from '@/lib/ar';
 import { loadArData } from '@/lib/ar/load';
 import { asOfParam, withAsOf } from '@/lib/asof';
 import { requestAsOf } from '@/lib/request-date';
@@ -29,12 +30,12 @@ async function InvoiceList({ searchParams }: Pick<PageProps<'/invoices'>, 'searc
   const all = invoiceRows(data, asOf);
   const rows = invoiceList(all, query);
   const totals = invoiceTotals(rows);
-  const filtered = Boolean(query.q || query.customer || query.status !== 'all' || query.disputed !== 'all' || query.from || query.to);
+  const filtered = Boolean(query.q || query.customer || query.status !== 'all' || query.disputed !== 'all' || query.bucket || query.from || query.to);
 
   const params = {
     asof: keep, q: query.q || null, customer: query.customer ? String(query.customer) : null,
     status: query.status === 'all' ? null : query.status, disputed: query.disputed === 'all' ? null : query.disputed,
-    from: query.from, to: query.to,
+    bucket: query.bucket, from: query.from, to: query.to,
   };
   const header = (label: string, column: string, align: 'left' | 'right' = 'left') => (
     <SortHeader label={label} column={column} sort={query.sort} dir={query.dir} path="/invoices" params={params} align={align} />
@@ -79,6 +80,12 @@ async function InvoiceList({ searchParams }: Pick<PageProps<'/invoices'>, 'searc
             <option value="all">All</option>
             <option value="yes">Disputed</option>
             <option value="no">Not disputed</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1"><span className="text-zinc-600">Ageing</span>
+          <select name="bucket" defaultValue={query.bucket ?? ''} className={control}>
+            <option value="">All buckets</option>
+            {BUCKETS.map((b) => <option key={b} value={b}>{b === 'Not due' || b === 'Over 180' ? b : `${BUCKET_LABELS[b]} days`}</option>)}
           </select>
         </label>
         <label className="flex flex-col gap-1"><span className="text-zinc-600">Invoice date from</span>

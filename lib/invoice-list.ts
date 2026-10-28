@@ -1,5 +1,5 @@
 // Search, filters and sort for the invoice list (Part 2). Works on rows from lib/ar.
-import type { InvoiceRow, InvoiceStatusName } from './ar';
+import { BUCKETS, type Bucket, type InvoiceRow, type InvoiceStatusName } from './ar';
 import { isValidDate } from './asof';
 import type { SortDir } from './customer-list';
 
@@ -17,6 +17,7 @@ export interface InvoiceListQuery {
   customer: number | null;
   status: InvoiceStatusFilter;
   disputed: 'all' | 'yes' | 'no';
+  bucket: Bucket | null; // ageing bucket (R12), for click-through from the ageing table
   from: string | null;
   to: string | null;
   sort: InvoiceSort;
@@ -33,11 +34,13 @@ export function parseInvoiceListQuery(params: Params): InvoiceListQuery {
   const from = first(params.from);
   const to = first(params.to);
   const disputed = first(params.disputed);
+  const bucket = first(params.bucket);
   return {
     q: first(params.q).trim(),
     customer: /^\d+$/.test(customer) ? Number(customer) : null,
     status: oneOf(STATUS_FILTERS, first(params.status), 'all'),
     disputed: disputed === 'yes' || disputed === 'no' ? disputed : 'all',
+    bucket: (BUCKETS as string[]).includes(bucket) ? (bucket as Bucket) : null,
     from: isValidDate(from) ? from : null,
     to: isValidDate(to) ? to : null,
     sort: oneOf(INVOICE_SORTS, first(params.sort), 'invoiceDate'),
@@ -72,7 +75,7 @@ function matchesStatus(r: InvoiceRow, status: InvoiceStatusFilter): boolean {
   }
 }
 
-/** Filter by number, customer, status, disputed flag and invoice date range; then sort, ties by number. */
+/** Filter by number, customer, status, disputed flag, ageing bucket and invoice date range; then sort, ties by number. */
 export function invoiceList(rows: InvoiceRow[], query: InvoiceListQuery): InvoiceRow[] {
   const q = query.q.toLowerCase();
   const get = sortValue[query.sort];
@@ -82,6 +85,7 @@ export function invoiceList(rows: InvoiceRow[], query: InvoiceListQuery): Invoic
     .filter((r) => query.customer === null || r.customer.id === query.customer)
     .filter((r) => matchesStatus(r, query.status))
     .filter((r) => query.disputed === 'all' || r.invoice.isDisputed === (query.disputed === 'yes'))
+    .filter((r) => query.bucket === null || r.bucket === query.bucket)
     .filter((r) => (!query.from || r.invoice.invoiceDate >= query.from) && (!query.to || r.invoice.invoiceDate <= query.to))
     .sort((a, b) => {
       const va = get(a);
