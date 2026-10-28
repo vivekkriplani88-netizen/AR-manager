@@ -4,12 +4,15 @@ import { Suspense } from 'react';
 import { ActiveToggle } from '@/components/active-toggle';
 import { AgeingLine } from '@/components/ageing-line';
 import { ActiveStatus, Badge, InvoiceStatus } from '@/components/badges';
+import { AllocateCreditForm } from '@/components/allocate-credit-form';
+import { DeleteReceipt } from '@/components/receipt-actions';
 import {
-  customerPositions, followUpsDue, invoicePositions, promiseStatuses, receiptPositions, type Invoice, type InvoicePosition,
+  customerPositions, followUpsDue, invoicePositions, promiseStatuses, receiptPositions, unallocatedAmount,
+  type Invoice, type InvoicePosition,
 } from '@/lib/ar';
 import { loadArData } from '@/lib/ar/load';
 import { asOfParam, withAsOf } from '@/lib/asof';
-import { requestAsOf } from '@/lib/request-date';
+import { requestAsOf, requestToday } from '@/lib/request-date';
 import { formatBalance, formatDate, formatMoney, formatPercent } from '@/lib/format';
 
 export default function CustomerPage(props: PageProps<'/customers/[id]'>) {
@@ -52,6 +55,14 @@ async function Customer({ params, searchParams }: PageProps<'/customers/[id]'>) 
     .filter((n) => n.customerId === id && n.noteDate <= asOf)
     .sort((a, b) => b.noteDate.localeCompare(a.noteDate) || b.id - a.id);
   const invoiceNo = new Map(data.invoices.map((i) => [i.id, i.invoiceNo]));
+  const hasAllocations = new Set(data.allocations.map((a) => a.receiptId));
+  // Credit that can be allocated now, whatever the as-at date: what each receipt has left after every allocation.
+  const credits = data.receipts
+    .filter((r) => r.customerId === id)
+    .map((receipt) => ({ receipt, unallocated: unallocatedAmount(data, receipt.id) }))
+    .filter((x) => x.unallocated > 0)
+    .sort((a, b) => a.receipt.receiptDate.localeCompare(b.receipt.receiptDate));
+  const today = await requestToday();
 
   return (
     <div className="space-y-6">
@@ -163,7 +174,7 @@ async function Customer({ params, searchParams }: PageProps<'/customers/[id]'>) 
               <thead className="border-b border-zinc-200"><tr>
                 <th className={th}>Receipt</th><th className={th}>Date</th><th className={th}>Mode</th><th className={th}>Reference</th>
                 <th className={thr}>Bank</th><th className={thr}>TDS</th><th className={thr}>Settlement</th>
-                <th className={thr}>Allocated</th><th className={thr}>Unapplied</th>
+                <th className={thr}>Allocated</th><th className={thr}>Unapplied</th><th className={th} />
               </tr></thead>
               <tbody>
                 {receipts.map((r) => (
@@ -177,12 +188,31 @@ async function Customer({ params, searchParams }: PageProps<'/customers/[id]'>) 
                     <td className={tdr}>{formatMoney(r.settlement)}</td>
                     <td className={tdr}>{formatMoney(r.allocated)}</td>
                     <td className={`${tdr} ${r.unapplied > 0 ? 'font-medium text-sky-800' : ''}`}>{formatMoney(r.unapplied)}</td>
+                    <td className="p-2">{!hasAllocations.has(r.receipt.id) && <DeleteReceipt id={r.receipt.id} />}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
+        {credits.length > 0 && (
+          <details className="mt-4 rounded border border-sky-200 bg-sky-50/40 p-3" open={position.unapplied > 0}>
+            <summary className="cursor-pointer text-sm font-medium">Allocate unapplied credit</summary>
+            <p className="mt-1 mb-3 text-xs text-zinc-500">Receipts with credit still to allocate today, whatever the as-at date.</p>
+            <AllocateCreditForm
+              // Only what the form needs: this customer's invoices, credit notes and allocations.
+              data={{
+                customers: [c], notes: [], receipts: data.receipts.filter((r) => r.customerId === id),
+                invoices: data.invoices.filter((i) => i.customerId === id),
+                creditNotes: data.creditNotes, allocations: data.allocations,
+              }}
+              customerId={id}
+              credits={credits}
+              today={today}
+            />
+          </details>
+        )}
+        <p className="mt-3 text-xs text-zinc-500">A receipt can be deleted only when nothing is allocated from it. Remove allocations from the invoice pages.</p>
       </section>
 
       {/* Notes timeline */}

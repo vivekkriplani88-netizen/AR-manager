@@ -10,3 +10,4 @@ export * from './dso';
 export * from './invoice-rows';
 export * from './preview';
 export * from './dashboard';
+export * from './allocation';

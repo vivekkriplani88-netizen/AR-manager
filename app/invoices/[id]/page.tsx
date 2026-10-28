@@ -5,6 +5,7 @@ import { BUCKET_LABELS } from '@/components/ageing-line';
 import { Badge, InvoiceStatus } from '@/components/badges';
 import { CreditNoteForm } from '@/components/credit-note-form';
 import { CancelInvoice, DisputedToggle } from '@/components/invoice-actions';
+import { RemoveAllocation } from '@/components/receipt-actions';
 import { TaxLines } from '@/components/tax-lines';
 import { canCancel, creditableAmount, invoicePositions } from '@/lib/ar';
 import { loadArData } from '@/lib/ar/load';
@@ -124,7 +125,7 @@ async function InvoiceDetail({ params, searchParams }: PageProps<'/invoices/[id]
         {allocations.length === 0 ? <p className="text-sm text-zinc-500">No payments allocated as at {formatDate(asOf)}.</p> : (
           <table className="tabular w-full text-sm">
             <thead className="border-b border-zinc-200"><tr>
-              <th className={th}>Receipt</th><th className={th}>Receipt date</th><th className={th}>Allocated on</th><th className={thr}>Amount</th>
+              <th className={th}>Receipt</th><th className={th}>Receipt date</th><th className={th}>Allocated on</th><th className={thr}>Amount</th><th className={th} />
             </tr></thead>
             <tbody>
               {allocations.map((a) => {
@@ -135,6 +136,7 @@ async function InvoiceDetail({ params, searchParams }: PageProps<'/invoices/[id]
                     <td className="p-2">{r && formatDate(r.receiptDate)}</td>
                     <td className="p-2">{formatDate(a.allocationDate)}</td>
                     <td className="p-2 text-right">{formatMoney(a.amount)}</td>
+                    <td className="p-2"><RemoveAllocation id={a.id} /></td>
                   </tr>
                 );
               })}
