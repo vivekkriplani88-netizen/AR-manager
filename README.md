@@ -4,7 +4,7 @@ An accounts receivable tool for **Brightwater Advisory Pvt. Ltd.**, built for th
 assignment ([docs/BRIEF.md](docs/BRIEF.md)). It shows who owes the firm money, how late each payment
 is and what to do about it, correct to the paisa **as at any date** the user picks.
 
-- **Live site:** _add the Vercel URL here after deploying_
+- **Live site:** https://ar-manager-pink.vercel.app
 - **Stack:** Next.js 16 (App Router, TypeScript), Tailwind CSS, Supabase via `@supabase/supabase-js`, zod, Vitest, hosted on Vercel
 - **Tests:** 187 automated tests, including every Part 1 spot check and the R14 control check for every day of 2026
 
@@ -112,6 +112,13 @@ curl -X POST "$SUPABASE_URL/rest/v1/rpc/reset_workspace" \
 Import the GitHub repository in Vercel (Add New → Project), keep the detected Next.js settings, and
 add `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `AR_WORKSPACE_ID` under Environment Variables before the
 first deploy. Every push to `main` deploys. After changing a variable, redeploy.
+
+**Checking a deployment:** `/api/health` reports whether each variable is set (with its length, never
+its value), which Supabase project the anon key belongs to, and whether the database answers for the
+workspace. A healthy deployment shows `"project":"jxllwhrinqlzvydzrscs"` and `"database":{"ok":true,…}`.
+A `401 Invalid API key` means `SUPABASE_ANON_KEY` is not the key from section 3.1 of the brief: a
+key from your own Supabase project (for example one added by the Supabase–Vercel integration) does
+not work with the shared database.
 
 ---
 
