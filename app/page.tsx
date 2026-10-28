@@ -119,7 +119,10 @@ async function Overview({ searchParams }: Pick<PageProps<'/'>, 'searchParams'>) 
 
       {/* Ageing by customer */}
       <section className={card}>
-        <h2 className="mb-1 font-semibold">Ageing by customer</h2>
+        <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="font-semibold">Ageing by customer</h2>
+          <a href={withAsOf('/ageing/export', keep)} download className="rounded border border-zinc-300 bg-white px-3 py-1 text-sm hover:bg-zinc-100">Export CSV</a>
+        </div>
         <p className="mb-3 text-xs text-zinc-500">Invoice outstanding by days past due. Unapplied credit is shown separately, not netted against any bucket. Click an amount to see its invoices.</p>
         {d.ageing.length === 0 ? <p className="text-sm text-zinc-500">Nothing outstanding.</p> : (
           <div className="overflow-x-auto">

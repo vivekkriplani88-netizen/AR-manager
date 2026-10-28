@@ -5,6 +5,26 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Printing (section 4.12): A4 with 15 mm margins; the header and buttons hide via print: variants. */
+@page {
+  size: A4;
+  margin: 15mm;
+}
+
+@media print {
+  body {
+    background: white;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
 /* Amounts line up in tables when every digit has the same width. */
 .tabular {
   font-variant-numeric: tabular-nums;

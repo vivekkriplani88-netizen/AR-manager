@@ -16,6 +16,12 @@ export function fyLabel(date: string): string {
   return `${yy(start)}-${yy(start + 1)}`;
 }
 
+/** The first day of the financial year a date falls in: '2026-08-31' → '2026-04-01'. */
+export function fyStart(date: string): string {
+  const [y, m] = date.split('-').map(Number);
+  return `${m >= 4 ? y : y - 1}-04-01`;
+}
+
 /**
  * R4: the next number in a series for a document dated `date`. One more than the highest number
  * already used in that financial year, cancelled invoices included, so no number is reused.

@@ -37,6 +37,10 @@ async function InvoiceList({ searchParams }: Pick<PageProps<'/invoices'>, 'searc
     status: query.status === 'all' ? null : query.status, disputed: query.disputed === 'all' ? null : query.disputed,
     bucket: query.bucket, from: query.from, to: query.to,
   };
+  // The CSV export takes the same filters and sort as the screen.
+  const exportQuery = new URLSearchParams(
+    Object.entries({ ...params, sort: query.sort, dir: query.dir }).filter((e): e is [string, string] => Boolean(e[1])),
+  ).toString();
   const header = (label: string, column: string, align: 'left' | 'right' = 'left') => (
     <SortHeader label={label} column={column} sort={query.sort} dir={query.dir} path="/invoices" params={params} align={align} />
   );
@@ -49,7 +53,10 @@ async function InvoiceList({ searchParams }: Pick<PageProps<'/invoices'>, 'searc
           <h1 className="text-2xl font-semibold">Invoices</h1>
           <p className="text-sm text-zinc-600">As at {formatDate(asOf)}. Invoices dated after this date are not shown.</p>
         </div>
-        <Link href={withAsOf('/invoices/new', keep)} className="rounded bg-zinc-900 px-4 py-2 text-sm text-white">New invoice</Link>
+        <div className="flex gap-2">
+          <a href={`/invoices/export?${exportQuery}`} download className="rounded border border-zinc-300 bg-white px-4 py-2 text-sm hover:bg-zinc-100">Export CSV</a>
+          <Link href={withAsOf('/invoices/new', keep)} className="rounded bg-zinc-900 px-4 py-2 text-sm text-white">New invoice</Link>
+        </div>
       </div>
 
       <form className="mb-4 flex flex-wrap items-end gap-3 text-sm" role="search">
