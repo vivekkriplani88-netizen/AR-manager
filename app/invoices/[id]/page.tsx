@@ -7,7 +7,9 @@ import { CreditNoteForm } from '@/components/credit-note-form';
 import { CancelInvoice, DisputedToggle } from '@/components/invoice-actions';
 import { RemoveAllocation } from '@/components/receipt-actions';
 import { TaxLines } from '@/components/tax-lines';
-import { canCancel, creditableAmount, invoicePositions } from '@/lib/ar';
+import { NoteForm } from '@/components/note-form';
+import { NoteItem } from '@/components/note-item';
+import { canCancel, creditableAmount, followUpsDue, invoicePositions, promiseStatuses } from '@/lib/ar';
 import { loadArData } from '@/lib/ar/load';
 import { asOfParam, withAsOf } from '@/lib/asof';
 import { requestAsOf, requestToday } from '@/lib/request-date';
@@ -53,6 +55,8 @@ async function InvoiceDetail({ params, searchParams }: PageProps<'/invoices/[id]
     + data.creditNotes.filter((c) => c.invoiceId === id && c.creditNoteDate > asOf).length;
   const creditable = creditableAmount(data, id);
   const today = await requestToday();
+  const promises = new Map(promiseStatuses(data, asOf).map((p) => [p.note.id, p]));
+  const followUpDue = new Set(followUpsDue(data, asOf).map((n) => n.id));
 
   return (
     <div className="space-y-6">
@@ -188,13 +192,21 @@ async function InvoiceDetail({ params, searchParams }: PageProps<'/invoices/[id]
 
       <section className={card}>
         <h2 className="mb-3 font-semibold">Notes</h2>
+        <details className="mb-4 rounded border border-zinc-200 p-3">
+          <summary className="cursor-pointer text-sm font-medium">Add a note about this invoice</summary>
+          <div className="mt-3">
+            <NoteForm
+              customerId={customer.id}
+              fixedInvoiceId={invoice.id}
+              today={today < invoice.invoiceDate ? invoice.invoiceDate : today}
+              asOf={keep}
+            />
+          </div>
+        </details>
         {notes.length === 0 ? <p className="text-sm text-zinc-500">No notes on this invoice as at {formatDate(asOf)}.</p> : (
-          <ul className="space-y-3 text-sm">
+          <ul className="space-y-4">
             {notes.map((n) => (
-              <li key={n.id}>
-                <p className="text-zinc-500"><span className="font-medium text-zinc-900">{formatDate(n.noteDate)}</span> · {n.noteType}</p>
-                <p>{n.body}</p>
-              </li>
+              <NoteItem key={n.id} note={n} promise={promises.get(n.id)} followUpDue={followUpDue.has(n.id)} />
             ))}
           </ul>
         )}

@@ -3,8 +3,10 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { ActiveToggle } from '@/components/active-toggle';
 import { AgeingLine } from '@/components/ageing-line';
-import { ActiveStatus, Badge, InvoiceStatus } from '@/components/badges';
+import { ActiveStatus, InvoiceStatus } from '@/components/badges';
 import { AllocateCreditForm } from '@/components/allocate-credit-form';
+import { NoteForm } from '@/components/note-form';
+import { NoteItem } from '@/components/note-item';
 import { DeleteReceipt } from '@/components/receipt-actions';
 import {
   customerPositions, followUpsDue, invoicePositions, promiseStatuses, receiptPositions, unallocatedAmount,
@@ -218,35 +220,32 @@ async function Customer({ params, searchParams }: PageProps<'/customers/[id]'>) 
       {/* Notes timeline */}
       <section className={card}>
         <h2 className="mb-3 font-semibold">Notes</h2>
+        <details className="mb-4 rounded border border-zinc-200 p-3">
+          <summary className="cursor-pointer text-sm font-medium">Add a note</summary>
+          <div className="mt-3">
+            <NoteForm
+              customerId={c.id}
+              today={today}
+              asOf={keep}
+              invoices={data.invoices
+                .filter((i) => i.customerId === id && !i.isCancelled)
+                .sort((a, b) => b.invoiceDate.localeCompare(a.invoiceDate))
+                .map((i) => ({ id: i.id, label: `${i.invoiceNo} · ${formatDate(i.invoiceDate)}` }))}
+            />
+          </div>
+        </details>
         {notes.length === 0 ? <p className="text-sm text-zinc-500">No notes dated on or before {formatDate(asOf)}.</p> : (
           <ol className="space-y-4 border-l-2 border-zinc-200 pl-4">
-            {notes.map((n) => {
-              const promise = promises.get(n.id);
-              return (
-                <li key={n.id} className="text-sm">
-                  <p className="flex flex-wrap items-center gap-2 text-zinc-500">
-                    <span className="font-medium text-zinc-900">{formatDate(n.noteDate)}</span>
-                    <Badge className="bg-zinc-100 text-zinc-700">{n.noteType}</Badge>
-                    {n.invoiceId !== null && (
-                      <Link href={link(`/invoices/${n.invoiceId}`)} className="underline">{invoiceNo.get(n.invoiceId)}</Link>
-                    )}
-                  </p>
-                  <p className="mt-1">{n.body}</p>
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    {n.followUpDate && (
-                      n.followUpDone ? <Badge className="bg-green-100 text-green-800">Follow-up {formatDate(n.followUpDate)} done</Badge>
-                      : followUpDue.has(n.id) ? <Badge className="bg-red-100 text-red-800">Follow-up due {formatDate(n.followUpDate)}</Badge>
-                      : <Badge className="bg-zinc-100 text-zinc-700">Follow-up {formatDate(n.followUpDate)}</Badge>
-                    )}
-                    {promise && (
-                      <Badge className={promise.status === 'Kept' ? 'bg-green-100 text-green-800' : promise.status === 'Broken' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}>
-                        Promise {formatMoney(promise.promiseAmount)} by {formatDate(promise.promiseDate)}: {promise.status}
-                      </Badge>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
+            {notes.map((n) => (
+              <NoteItem
+                key={n.id}
+                note={n}
+                invoiceNo={n.invoiceId === null ? undefined : invoiceNo.get(n.invoiceId)}
+                invoiceHref={n.invoiceId === null ? undefined : link(`/invoices/${n.invoiceId}`)}
+                promise={promises.get(n.id)}
+                followUpDue={followUpDue.has(n.id)}
+              />
+            ))}
           </ol>
         )}
       </section>

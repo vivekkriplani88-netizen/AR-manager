@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { BUCKET_LABELS } from '@/components/ageing-line';
 import { Badge } from '@/components/badges';
+import { FollowUpToggle } from '@/components/follow-up-toggle';
 import { BUCKETS, dashboard, type Bucket } from '@/lib/ar';
 import { loadArData } from '@/lib/ar/load';
 import { asOfParam, withAsOf } from '@/lib/asof';
@@ -96,6 +97,7 @@ async function Overview({ searchParams }: Pick<PageProps<'/'>, 'searchParams'>) 
                     <Link href={link(`/customers/${c.id}`)} className="font-medium underline-offset-2 hover:underline">{c.code} · {c.name}</Link>
                     <span className="text-zinc-500"> · due {formatDate(n.followUpDate!)}</span>
                     <br /><span className="line-clamp-2">{n.body}</span>
+                    <div className="mt-1"><FollowUpToggle id={n.id} done={n.followUpDone} /></div>
                   </li>
                 );
               })}

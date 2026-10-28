@@ -58,6 +58,26 @@ export const date = (label: string) =>
     .min(1, { error: `Enter the ${label}.` })
     .refine(isValidDate, { error: `Enter the ${label} as a real date.` });
 
+/** A date that may be left blank (null). */
+export const optionalDate = (label: string) =>
+  z
+    .string()
+    .trim()
+    .refine((v) => v === '' || isValidDate(v), { error: `Enter the ${label} as a real date, or leave it blank.` })
+    .transform((v) => (v === '' ? null : v));
+
+/** An amount in rupees that may be left blank (null); if given, more than zero. */
+export const optionalPositiveRupees = (label: string) =>
+  z.string().transform((text, ctx) => {
+    if (text.trim() === '') return null;
+    const amount = parseRupees(text);
+    if (amount === null || amount <= 0) {
+      ctx.addIssue({ code: 'custom', message: `Enter the ${label} in rupees, more than zero, or leave it blank.` });
+      return z.NEVER;
+    }
+    return amount;
+  });
+
 /** The id of a record chosen from a list. */
 export const recordId = (message: string) =>
   z.string().trim().regex(/^\d+$/, { error: message }).transform(Number);
